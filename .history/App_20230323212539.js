@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from "react";
 import * as Font from "expo-font";
-import "react-native-gesture-handler";
-import AppLoading from "expo";
-import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
-import RegistrationScreen from "./Screens/auth/RegistrationScreen";
-import LoginScreen from "./Screens/auth/LoginScreen";
 
-const AuthStack = createStackNavigator();
+import RegistationScreen from "./Screens/auth/RegistrationScreen";
+import LoginnScreen from "./Screens/auth/LoginScreen";
+
 export default function App() {
   const [isReady, setIsReady] = useState(false);
 
@@ -31,21 +27,10 @@ export default function App() {
   if (!isReady) {
     return null; // или можно отображать индикатор загрузки
   }
-
   return (
-    <NavigationContainer>
-      <AuthStack.Navigator>
-        <AuthStack.Screen
-          options={{ headerShown: false }}
-          name='Register'
-          component={RegistrationScreen}
-        />
-        <AuthStack.Screen
-          options={{ headerShown: false }}
-          name='Login'
-          component={LoginScreen}
-        />
-      </AuthStack.Navigator>
-    </NavigationContainer>
+    <>
+      {/* <RegistationScreen /> */}
+      <LoginnScreen />
+    </>
   );
 }

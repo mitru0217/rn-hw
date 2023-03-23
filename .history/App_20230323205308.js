@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from "react";
+// import {
+//   StyleSheet,
+//   Text,
+//   View,
+//   ImageBackground,
+//   TextInput,
+//   TouchableOpacity,
+//   Platform,
+//   KeyboardAvoidingView,
+//   Keyboard,
+//   TouchableWithoutFeedback,
+//   Dimensions,
+// } from "react-native";
 import * as Font from "expo-font";
-import "react-native-gesture-handler";
-import AppLoading from "expo";
-import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
-import RegistrationScreen from "./Screens/auth/RegistrationScreen";
-import LoginScreen from "./Screens/auth/LoginScreen";
+// import { useFonts } from 'expo-font';
+import RegistationScreen from "./Screens/auth/RegistrationScreen";
+// const backgroundImage = require("./assets/images/photo-1536528087222-ef43dd3bb0f3.jpg");
+// const initialState = {
+//   name: "",
+//   email: "",
+//   password: "",
+// };
 
-const AuthStack = createStackNavigator();
 export default function App() {
   const [isReady, setIsReady] = useState(false);
 
@@ -31,21 +45,9 @@ export default function App() {
   if (!isReady) {
     return null; // или можно отображать индикатор загрузки
   }
-
   return (
-    <NavigationContainer>
-      <AuthStack.Navigator>
-        <AuthStack.Screen
-          options={{ headerShown: false }}
-          name='Register'
-          component={RegistrationScreen}
-        />
-        <AuthStack.Screen
-          options={{ headerShown: false }}
-          name='Login'
-          component={LoginScreen}
-        />
-      </AuthStack.Navigator>
-    </NavigationContainer>
+    <>
+      <RegistationScreen />
+    </>
   );
 }

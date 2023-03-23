@@ -4,10 +4,18 @@ import "react-native-gesture-handler";
 import AppLoading from "expo";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import RegistrationScreen from "./Screens/auth/RegistrationScreen";
-import LoginScreen from "./Screens/auth/LoginScreen";
+import RegistationScreen from "./Screens/auth/RegistrationScreen";
+import LoginnScreen from "./Screens/auth/LoginScreen";
 
-const AuthStack = createStackNavigator();
+// const loadingFonts = async () => {
+//   await Font.loadAsync({
+//     "Roboto-Regular": require("./assets/fonts/Roboto-Regular.ttf"),
+//     "Roboto-Bold": require("./assets/fonts/Roboto-Bold.ttf"),
+//     "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
+//   });
+// };
+
+const Stack = createStackNavigator();
 export default function App() {
   const [isReady, setIsReady] = useState(false);
 
@@ -31,21 +39,20 @@ export default function App() {
   if (!isReady) {
     return null; // или можно отображать индикатор загрузки
   }
+  // if (!isReady) {
+  //   return (
+  //     <AppLoading
+  //       startAsync={loadingFonts}
+  //       onFinish={() => setIsReady(true)}
+  //       onError={console.warn}
+  //     />
+    // );
+  }
 
   return (
-    <NavigationContainer>
-      <AuthStack.Navigator>
-        <AuthStack.Screen
-          options={{ headerShown: false }}
-          name='Register'
-          component={RegistrationScreen}
-        />
-        <AuthStack.Screen
-          options={{ headerShown: false }}
-          name='Login'
-          component={LoginScreen}
-        />
-      </AuthStack.Navigator>
-    </NavigationContainer>
+    <>
+      {/* <RegistationScreen /> */}
+      <LoginnScreen />
+    </>
   );
 }
