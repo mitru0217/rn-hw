@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import { getAuth, signOut } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { authLogOutUser } from "../../redux/auth/authOperations";
-
 const ProfileScreen = () => {
   const dispatch = useDispatch();
   const loginOut = () => {

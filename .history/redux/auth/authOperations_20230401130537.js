@@ -11,7 +11,6 @@ import "firebase/auth";
 import { app } from "../../firebase/config";
 import { authSlice } from "./authReducer";
 
-const { updateUserProfile, authStateChange, authLogOut } = authSlice.actions;
 // export const authSignUpUser =
 //   ({ email, password, name }) =>
 //   async (dispatch, getState) => {
@@ -39,7 +38,9 @@ export const authSignUpUser =
 
       const { uid, displayName } = auth.currentUser;
 
-      dispatch(updateUserProfile({ userId: uid, name: displayName }));
+      dispatch(
+        authSlice.actions.updateUserProfile({ userId: uid, name: displayName })
+      );
     } catch (error) {
       console.log("error.code", error.code);
       console.log("error.message", error.message);
@@ -61,7 +62,6 @@ export const authLogInUser =
 export const authLogOutUser = () => async (dispatch, getState) => {
   const auth = getAuth();
   await signOut(auth);
-  dispatch(authLogOut());
 };
 
 export const authStateCahngeUser = () => async (dispatch, getState) => {
@@ -70,8 +70,13 @@ export const authStateCahngeUser = () => async (dispatch, getState) => {
     if (user) {
       const uid = user.uid;
       const displayName = user.displayName;
-      dispatch(updateUserProfile({ userId: uid, name: displayName }));
-      dispatch(authStateChange({ stateChange: true }));
+      dispatch(
+        authSlice.actions.updateUserProfile({ userId: uid, name: displayName })
+      );
+      dispatch(authSlice.actions.authStateChange({ stateChange: true }));
     }
+    // else {
+
+    // }
   });
 };
