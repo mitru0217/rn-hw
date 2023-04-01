@@ -37,9 +37,15 @@ const CreatePostsScreen = ({ navigation }) => {
 
   const cameraRef = useRef(null); // используем useRef для создания ссылки на объект камеры
 
+  // useEffect(() => {
+  //   (async () => {
+  //     const { status } = await Camera.requestCameraPermissionsAsync(); // используем useEffect и Camera.requestCameraPermissionsAsync для запроса разрешений на использование камеры
+  //     setHasPermission(status === "granted");
+  //   })();
+  // }, []);
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync(); // используем useEffect и Camera.requestCameraPermissionsAsync для запроса разрешений на использование камеры
+      const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     })();
 
@@ -50,6 +56,28 @@ const CreatePostsScreen = ({ navigation }) => {
       setCameraReady(false);
     };
   }, []);
+
+  const startCamera = async () => {
+    if (cameraRef.current) {
+      await cameraRef.current.resumePreview(); // используем ссылку на объект камеры для запуска предварительного просмотра камеры
+      setCameraReady(true); // устанавливаем состояние cameraReady для предотвращения фотографирования до тех пор, пока камера не будет готова
+    }
+  };
+
+  const stopCamera = async () => {
+    if (cameraRef.current) {
+      await cameraRef.current.pausePreview(); // используем ссылку на объект камеры для остановки предварительного просмотра камеры
+      setCameraReady(false); // сбрасываем состояние cameraReady
+    }
+  };
+
+  const switchCamera = () => {
+    if (cameraType === Camera.Constants.Type.back) {
+      setCameraType(Camera.Constants.Type.front); // переключаемся на переднюю камеру
+    } else {
+      setCameraType(Camera.Constants.Type.back); // переключаемся на заднюю камеру
+    }
+  };
 
   const takePicture = async () => {
     if (cameraRef.current && !isTakingPicture) {
@@ -62,7 +90,8 @@ const CreatePostsScreen = ({ navigation }) => {
         setLongitude(location.coords.longitude);
         //Делам запрос на получение геоданных
         const response = await Axios.get(
-          `https://api.opencagedata.com/geocode/v1/json?q=${location.coords.latitude}+${location.coords.longitude}&key=2bcd8a72cefe47e4b387060ed1e39d39`
+          `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=2bcd8a72cefe47e4b387060ed1e39d39`
+          // "https://api.opencagedata.com/geocode/v1/json?q=51.0361102+29.2962951&key=2bcd8a72cefe47e4b387060ed1e39d39"
         );
 
         if (response && response.data && response.data.results) {
@@ -76,6 +105,13 @@ const CreatePostsScreen = ({ navigation }) => {
         } else {
           console.log("Could not fetch locality data.");
         }
+        // const localityName =
+        //   response.data.results[0].components.city ??
+        //   response.data.results[0].components.town ??
+        //   response.data.results[0].components.village; // Получаем данные локации из ответа
+
+        // setLocality(localityName); // update the locality state with the locality name
+        // console.log(localityName); // log the locality name to console
         setPhoto(uri); // сохраняем ссылку на фото в состоянии компонента
         console.log(uri); // выводим uri фотографии в консоль
       } catch (error) {
@@ -149,6 +185,16 @@ const CreatePostsScreen = ({ navigation }) => {
                     />
                   </TouchableOpacity>
                 )}
+                <TouchableOpacity
+                  onPress={switchCamera}
+                  style={styles.btnSwitchCamera}
+                >
+                  <FontAwesome
+                    name='camera-retro'
+                    size={20}
+                    color='rgba(189, 189, 189, 1)'
+                  />
+                </TouchableOpacity>
               </View>
               {photo && (
                 <View style={styles.takePhotoContainer}>
@@ -327,37 +373,3 @@ export default CreatePostsScreen;
                   />
                 </TouchableOpacity> */
 }
-
-// const startCamera = async () => {
-//   if (cameraRef.current) {
-//     await cameraRef.current.resumePreview(); // используем ссылку на объект камеры для запуска предварительного просмотра камеры
-//     setCameraReady(true); // устанавливаем состояние cameraReady для предотвращения фотографирования до тех пор, пока камера не будет готова
-//   }
-// };
-
-// const stopCamera = async () => {
-//   if (cameraRef.current) {
-//     await cameraRef.current.pausePreview(); // используем ссылку на объект камеры для остановки предварительного просмотра камеры
-//     setCameraReady(false); // сбрасываем состояние cameraReady
-//   }
-// };
-{
-  /* <TouchableOpacity
-onPress={switchCamera}
-style={styles.btnSwitchCamera}
->
-<FontAwesome
-  name='camera-retro'
-  size={20}
-  color='rgba(189, 189, 189, 1)'
-/>
-</TouchableOpacity> */
-}
-
-// const switchCamera = () => {
-//   if (cameraType === Camera.Constants.Type.back) {
-//     setCameraType(Camera.Constants.Type.front); // переключаемся на переднюю камеру
-//   } else {
-//     setCameraType(Camera.Constants.Type.back); // переключаемся на заднюю камеру
-//   }
-// };

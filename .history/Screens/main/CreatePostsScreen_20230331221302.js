@@ -11,7 +11,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import Axios from "axios";
+
 import { Camera, CameraType } from "expo-camera";
 import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
@@ -28,12 +28,9 @@ const CreatePostsScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState(null); //проверяем есть ли фото или нет
   const [isTakingPicture, setIsTakingPicture] = useState(false); // используем хук useState для управления состоянием фотографирования
   const [cameraReady, setCameraReady] = useState(false); // используем хук useState для управления состоянием готовности камеры
+
   const [state, setState] = useState(initialState); //используем хук useState для управления состоянием для создания поста
   const [isShowKeyboard, setIsShowKeyboard] = useState(false); //используем хук useState: делаем флаг, видна клавиатура или нет
-  //Создаём состояние для получения координат
-  const [locality, setLocality] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
 
   const cameraRef = useRef(null); // используем useRef для создания ссылки на объект камеры
 
@@ -42,14 +39,29 @@ const CreatePostsScreen = ({ navigation }) => {
       const { status } = await Camera.requestCameraPermissionsAsync(); // используем useEffect и Camera.requestCameraPermissionsAsync для запроса разрешений на использование камеры
       setHasPermission(status === "granted");
     })();
-
-    return () => {
-      if (cameraRef.current && cameraReady) {
-        cameraRef.current.pausePreview();
-      }
-      setCameraReady(false);
-    };
   }, []);
+
+  const startCamera = async () => {
+    if (cameraRef.current) {
+      await cameraRef.current.resumePreview(); // используем ссылку на объект камеры для запуска предварительного просмотра камеры
+      setCameraReady(true); // устанавливаем состояние cameraReady для предотвращения фотографирования до тех пор, пока камера не будет готова
+    }
+  };
+
+  const stopCamera = async () => {
+    if (cameraRef.current) {
+      await cameraRef.current.pausePreview(); // используем ссылку на объект камеры для остановки предварительного просмотра камеры
+      setCameraReady(false); // сбрасываем состояние cameraReady
+    }
+  };
+
+  const switchCamera = () => {
+    if (cameraType === Camera.Constants.Type.back) {
+      setCameraType(Camera.Constants.Type.front); // переключаемся на переднюю камеру
+    } else {
+      setCameraType(Camera.Constants.Type.back); // переключаемся на заднюю камеру
+    }
+  };
 
   const takePicture = async () => {
     if (cameraRef.current && !isTakingPicture) {
@@ -58,24 +70,6 @@ const CreatePostsScreen = ({ navigation }) => {
         const { uri } = await cameraRef.current.takePictureAsync(); // используем ссылку на объект камеры и метод takePictureAsync для фотографирования
         const location = await Location.getCurrentPositionAsync(); //получаем координаты, где сделано фото
         console.log("location", location); // выводим координаты в консоль
-        setLatitude(location.coords.latitude);
-        setLongitude(location.coords.longitude);
-        //Делам запрос на получение геоданных
-        const response = await Axios.get(
-          `https://api.opencagedata.com/geocode/v1/json?q=${location.coords.latitude}+${location.coords.longitude}&key=2bcd8a72cefe47e4b387060ed1e39d39`
-        );
-
-        if (response && response.data && response.data.results) {
-          const localityName =
-            response.data.results[0].components.city ??
-            response.data.results[0].components.town ??
-            response.data.results[0].components.village;
-
-          setLocality(localityName);
-          console.log(localityName);
-        } else {
-          console.log("Could not fetch locality data.");
-        }
         setPhoto(uri); // сохраняем ссылку на фото в состоянии компонента
         console.log(uri); // выводим uri фотографии в консоль
       } catch (error) {
@@ -100,7 +94,7 @@ const CreatePostsScreen = ({ navigation }) => {
     })();
   }, []);
 
-  //Создаём пост.
+  //Создаём пост. Это мой код
   const sendPost = () => {
     console.log("navigate", navigation);
     const { title, locality } = state;
@@ -147,8 +141,38 @@ const CreatePostsScreen = ({ navigation }) => {
                       size={20}
                       color='rgba(189, 189, 189, 1)'
                     />
+                    {/* {isTakingPicture && (
+                      <FontAwesome
+                        name='circle'
+                        size={20}
+                        color='rgba(189, 189, 189, 1)'
+                      />
+                    )} */}
                   </TouchableOpacity>
                 )}
+                <TouchableOpacity
+                  onPress={switchCamera}
+                  style={styles.btnSwitchCamera}
+                >
+                  <FontAwesome
+                    name='camera-retro'
+                    size={20}
+                    color='rgba(189, 189, 189, 1)'
+                  />
+                </TouchableOpacity>
+                {/* <TouchableOpacity
+                  onPress={stopCamera}
+                  style={{
+                    alignSelf: "flex-end",
+                    padding: 20,
+                  }}
+                >
+                  <FontAwesome
+                    name='stop'
+                    size={20}
+                    color='rgba(189, 189, 189, 1)'
+                  />
+                </TouchableOpacity> */}
               </View>
               {photo && (
                 <View style={styles.takePhotoContainer}>
@@ -178,7 +202,7 @@ const CreatePostsScreen = ({ navigation }) => {
               style={styles.input}
               placeholder='Title'
               placeholderTextColor='rgba(189, 189, 189, 1)'
-              placeholderTextStyle={{
+              placeholderStyle={{
                 fontFamily: "Roboto-Regular",
                 fontSize: 16,
                 lineHeight: 19,
@@ -197,7 +221,7 @@ const CreatePostsScreen = ({ navigation }) => {
               style={styles.input}
               placeholder='Locality'
               placeholderTextColor='rgba(189, 189, 189, 1)'
-              placeholderTextStyle={{
+              placeholderStyle={{
                 fontFamily: "Roboto-Regular",
                 fontSize: 16,
                 lineHeight: 19,
@@ -206,8 +230,8 @@ const CreatePostsScreen = ({ navigation }) => {
               onFocus={() => setIsShowKeyboard(true)}
               onBlur={() => setIsShowKeyboard(false)}
               value={state.locality}
-              onChangeText={(locality) =>
-                setState((prevState) => ({ ...prevState, locality: locality }))
+              onChangeText={(value) =>
+                setState((prevState) => ({ ...prevState, locality: value }))
               }
             />
           </View>
@@ -248,8 +272,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   btnSwitchCamera: {
-    justifyContent: "center",
-    alignItems: "flex-end",
+    alignSelf: "flex-end",
     width: 60,
     height: 60,
     backgroundColor: "#FFFFFF",
@@ -311,53 +334,3 @@ const styles = StyleSheet.create({
 });
 
 export default CreatePostsScreen;
-
-{
-  /* <TouchableOpacity
-                  onPress={stopCamera}
-                  style={{
-                    alignSelf: "flex-end",
-                    padding: 20,
-                  }}
-                >
-                  <FontAwesome
-                    name='stop'
-                    size={20}
-                    color='rgba(189, 189, 189, 1)'
-                  />
-                </TouchableOpacity> */
-}
-
-// const startCamera = async () => {
-//   if (cameraRef.current) {
-//     await cameraRef.current.resumePreview(); // используем ссылку на объект камеры для запуска предварительного просмотра камеры
-//     setCameraReady(true); // устанавливаем состояние cameraReady для предотвращения фотографирования до тех пор, пока камера не будет готова
-//   }
-// };
-
-// const stopCamera = async () => {
-//   if (cameraRef.current) {
-//     await cameraRef.current.pausePreview(); // используем ссылку на объект камеры для остановки предварительного просмотра камеры
-//     setCameraReady(false); // сбрасываем состояние cameraReady
-//   }
-// };
-{
-  /* <TouchableOpacity
-onPress={switchCamera}
-style={styles.btnSwitchCamera}
->
-<FontAwesome
-  name='camera-retro'
-  size={20}
-  color='rgba(189, 189, 189, 1)'
-/>
-</TouchableOpacity> */
-}
-
-// const switchCamera = () => {
-//   if (cameraType === Camera.Constants.Type.back) {
-//     setCameraType(Camera.Constants.Type.front); // переключаемся на переднюю камеру
-//   } else {
-//     setCameraType(Camera.Constants.Type.back); // переключаемся на заднюю камеру
-//   }
-// };

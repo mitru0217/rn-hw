@@ -51,6 +51,14 @@ const CreatePostsScreen = ({ navigation }) => {
     };
   }, []);
 
+  const switchCamera = () => {
+    if (cameraType === Camera.Constants.Type.back) {
+      setCameraType(Camera.Constants.Type.front); // переключаемся на переднюю камеру
+    } else {
+      setCameraType(Camera.Constants.Type.back); // переключаемся на заднюю камеру
+    }
+  };
+
   const takePicture = async () => {
     if (cameraRef.current && !isTakingPicture) {
       setIsTakingPicture(true); // устанавливаем состояние isTakingPicture для предотвращения повторного фотографирования
@@ -149,6 +157,16 @@ const CreatePostsScreen = ({ navigation }) => {
                     />
                   </TouchableOpacity>
                 )}
+                <TouchableOpacity
+                  onPress={switchCamera}
+                  style={styles.btnSwitchCamera}
+                >
+                  <FontAwesome
+                    name='camera-retro'
+                    size={20}
+                    color='rgba(189, 189, 189, 1)'
+                  />
+                </TouchableOpacity>
               </View>
               {photo && (
                 <View style={styles.takePhotoContainer}>
@@ -339,25 +357,5 @@ export default CreatePostsScreen;
 //   if (cameraRef.current) {
 //     await cameraRef.current.pausePreview(); // используем ссылку на объект камеры для остановки предварительного просмотра камеры
 //     setCameraReady(false); // сбрасываем состояние cameraReady
-//   }
-// };
-{
-  /* <TouchableOpacity
-onPress={switchCamera}
-style={styles.btnSwitchCamera}
->
-<FontAwesome
-  name='camera-retro'
-  size={20}
-  color='rgba(189, 189, 189, 1)'
-/>
-</TouchableOpacity> */
-}
-
-// const switchCamera = () => {
-//   if (cameraType === Camera.Constants.Type.back) {
-//     setCameraType(Camera.Constants.Type.front); // переключаемся на переднюю камеру
-//   } else {
-//     setCameraType(Camera.Constants.Type.back); // переключаемся на заднюю камеру
 //   }
 // };
